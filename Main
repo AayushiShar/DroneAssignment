@@ -1,0 +1,158 @@
+
+import java.util.Scanner;
+
+public class Main {
+
+    void printlocation(int sol[][],int N,int M)
+    {
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < M; j++)
+                System.out.print(" " + sol[i][j] + " ");
+            System.out.println();
+        }
+    }
+
+    //Function to check the drone doesnot goes out of grid
+    boolean boundary(int grid[][], int x, int y)
+    {
+        // if (x, y outside maze) return false
+        int N=grid.length;
+        int M=grid[0].length;
+        if (x >= 0 && x < N && y >= 0 && y < M && grid[x][y] == 1){
+            grid[x][y]=0;// to ensure no two drones path intersect each other
+            return true;
+        }
+        return false;
+    }
+
+//finding the final path from drone to target uses recursive function path
+    boolean finalGrid(int grid[][],int i,int j,int xt,int yt)
+    {
+
+
+        int N=grid.length;
+        int M=grid[0].length;
+        int [][]sol=new int[N][M];
+        for(int a=0;a<N;a++)
+        {
+            for(int b=0;b<M;b++)
+            {
+                sol[a][b]=0;
+            }
+        }
+
+        if (path(grid, i, j,xt,yt ,sol) == false) {
+            System.out.print("Solution doesn't exist");
+            return false;
+        }
+
+        printlocation(sol,N,M);
+        return true;
+    }
+
+//responsible for backtracking to find the possible path by marking them with 1
+
+    boolean path(int grid[][], int x, int y,
+                      int xt,int yt,int[][]sol)
+    {
+
+        if (x == xt && y == yt)
+        {//drone reaches the target
+            sol[x][y] = 22;
+            return true;
+        }
+
+
+       else if (boundary(grid, x, y) == true) {
+            // mark the current x, y as part of solution path
+            sol[x][y] = 2;
+
+            /* Move forward in 8 direction */
+            if (path(grid, x + 1, y,xt,yt ,sol)||path(grid, x + 1, y+1,xt,yt ,sol)||path(grid, x, y + 1,xt,yt, sol) ||path(grid, x - 1, y,xt,yt ,sol)||
+                    path(grid, x, y-1,xt,yt ,sol)||path(grid, x - 1, y-1,xt,yt ,sol)||path(grid, x + 1, y-1,xt,yt ,sol)||path(grid, x - 1, y+1,xt,yt ,sol))
+                return true;
+
+
+
+
+            sol[x][y] = 0;//unmarking x,y if not the desired solution
+
+        }
+
+      return false;
+    }
+
+    //considering 0 that are drones as blockers 1 as a free route
+    public static void main(String args[])
+    {
+        Main d = new Main();
+
+
+
+
+        Scanner sc= new Scanner(System.in);
+        System.out.print("Enter the  number of rows in the gride - ");
+        int rows= sc.nextInt();
+        System.out.print("Enter number of columns in the gride- ");
+        int columns= sc.nextInt();
+           //grid is filled by 1
+
+        int [][]Grid=new int[rows][columns];
+        for(int i=0;i<rows;i++) {
+            for (int j = 0; j < columns; j++) {
+                Grid[i][j] = 1;
+            }
+        }
+        //array to store the position of 4 drones
+        int [][]DronesLocation=new int [4][4];
+        for(int i=0;i<4;i++)
+        {
+            System.out.print("Enter Coordinates x&y for : "+ (i+1) +" th drone ");
+            for(int j=0;j<2;j++)
+            {
+
+                DronesLocation[i][j]=sc.nextInt();
+
+            }
+            for(int a=i-1;a>=0;a--)
+            {//to prevent two drones being at the same position
+                if(DronesLocation[a][0]==DronesLocation[i][0]&& DronesLocation[a][1]==DronesLocation[i][1])
+                {
+                    System.out.println("No drone can be at the same position ");
+                    i--;
+                    break;
+
+                }
+            }
+
+        }
+        System.out.print("Enter the coordinates x ,y : of target  ");
+        int yt=sc.nextInt();
+        int xt=sc.nextInt();
+
+        for(int i=0;i<4;i++) {
+           // for (int j = 0; j < 2; j++) {
+                int a=DronesLocation[i][0];
+                int b=DronesLocation[i][1];
+                Grid[a][b]=0;
+           // }
+        }
+
+
+
+        for(int i=0;i<4;i++)
+        {
+            int a=DronesLocation[i][0];
+            int b=DronesLocation[i][1];
+            // System.out.print(a+ " ");
+            // System.out.print(b+ " ");
+            // rat.solveMaze(maze);
+            System.out.println("The path of the "+(i+1)+"th drone located at the  coordinates ("+a+" "+b+") "+" is represented by 1s in the grid");
+            Grid[a][b]=1;
+            d.finalGrid(Grid,a,b,xt,yt);
+            System.out.println();
+        }
+
+//grid xth corrdinayte of drone   yth corr     xth target    yth target
+    }
+}
